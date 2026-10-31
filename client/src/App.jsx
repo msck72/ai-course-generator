@@ -1,122 +1,89 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { getCourses, createCourse } from './services/api';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [courses, setCourses] = useState([]);
+  const [prompt, setPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const loadCourses = async () => {
+    try {
+      setError('');
+      const res = await getCourses();
+      setCourses(res.data || []);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to connect to backend server');
+    }
+  };
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!prompt.trim() || loading) return;
+
+    try {
+      setLoading(true);
+      setError('');
+
+      await createCourse(prompt.trim());
+      setPrompt('');
+
+      await loadCourses();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || err.message || 'Generation failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+      <h1> Text-to-Learn: Course Generator</h1>
+      { }
+      <form onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Enter a topic (e.g. Learn Python for Beginners)"
+          disabled={loading}
+          style={{ width: '70%', padding: '0.6rem', fontSize: '1rem', marginRight: '0.5rem' }}
+        />
+        <button type="submit" disabled={loading || !prompt.trim()} style={{ padding: '0.6rem 1.2rem', fontSize: '1rem' }}>
+          {loading ? 'Generating with Gemini...' : 'Generate Course'}
         </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
+      </form>
+      { }
+      {loading && <p style={{ color: 'blue' }}>⏳ Please wait... Gemini is structuring modules and lessons...</p>}
+      {error && <p style={{ color: 'red' }}> {error}</p>}
+      { }
+      <h2>Generated Courses ({courses.length})</h2>
+      {courses.length === 0 ? (
+        <p>No courses yet. Type a topic above to generate one!</p>
+      ) : (
+        <ul>
+          {courses.map((course) => (
+            <li key={course._id} style={{ marginBottom: '1.5rem' }}>
+              <strong>{course.title}</strong>
+              <p style={{ color: '#555', margin: '0.3rem 0' }}>{course.description}</p>
+              <small>Modules: {course.modules?.length || 0}</small>
+              <ul>
+                {course.modules?.map((mod, idx) => (
+                  <li key={mod._id || idx}>
+                    {mod.title} ({mod.lessons?.length || 0} lessons)
+                  </li>
+                ))}
+              </ul>
             </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
-
-export default App
