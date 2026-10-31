@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom'
 
 export default function Navbar() {
     return (
@@ -21,20 +22,20 @@ export default function Navbar() {
                 </div>
                 { }
                 <nav className="flex items-center gap-2 sm:gap-3">
-                    <a
-                        href="/"
+                    <Link
+                        to="/"
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-600/20 text-indigo-300 border border-indigo-500/30"
                     >
                         <Sparkles className="w-4 h-4" />
                         <span>Generate</span>
-                    </a>
-                    <a
-                        href="#courses"
+                    </Link>
+                    <Link
+                        to="#courses"
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                     >
                         <BookOpen className="w-4 h-4" />
                         <span>My Courses</span>
-                    </a>
+                    </Link>
                 </nav>
             </div>
         </header>

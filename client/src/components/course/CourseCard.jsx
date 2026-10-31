@@ -1,5 +1,6 @@
 import React from 'react';
 import { BookOpen, Layers, ArrowRight, Tag } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function CourseCard({ course, onSelectCourse }) {
     const moduleCount = course.modules?.length || 0;
@@ -45,12 +46,12 @@ export default function CourseCard({ course, onSelectCourse }) {
                         day: 'numeric',
                     })}
                 </span>
-                <button
-                    onClick={() => onSelectCourse && onSelectCourse(course)}
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-400 group-hover:text-indigo-300 group-hover:translate-x-0.5 transition-all cursor-pointer"
+                <Link
+                    to={`/courses/${course._id}`}
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-400 group-hover:text-indigo-300 group-hover:translate-x-0.5 transition-all"
                 >
                     View Syllabus <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
             </div>
         </div>
     );
