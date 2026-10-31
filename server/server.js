@@ -3,6 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const courseRoutes = require('./routes/courseRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +25,8 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
+
+app.use('/api/courses', courseRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
