@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { getCourses, createCourse } from './services/api';
+import Navbar from './components/common/Navbar';
+import PromptForm from './components/course/PromptForm';
+import CourseCard from './components/course/CourseCard';
+import { BookOpen } from 'lucide-react';
 
 export default function App() {
   const [courses, setCourses] = useState([]);
-  const [prompt, setPrompt] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const loadCourses = async () => {
     try {
-      setError('');
       const res = await getCourses();
       setCourses(res.data || []);
     } catch (err) {
-      console.error(err);
-      setError('Failed to connect to backend server');
+      console.error('Failed to load courses:', err);
     }
   };
 
@@ -22,68 +22,44 @@ export default function App() {
     loadCourses();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!prompt.trim() || loading) return;
-
-    try {
-      setLoading(true);
-      setError('');
-
-      await createCourse(prompt.trim());
-      setPrompt('');
-
-      await loadCourses();
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || err.message || 'Generation failed');
-    } finally {
-      setLoading(false);
-    }
+  const handleCourseCreated = async (prompt) => {
+    await createCourse(prompt);
+    await loadCourses();
   };
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
-      <h1> Text-to-Learn: Course Generator</h1>
-      { }
-      <form onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
-        <input
-          type="text"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Enter a topic (e.g. Learn Python for Beginners)"
-          disabled={loading}
-          style={{ width: '70%', padding: '0.6rem', fontSize: '1rem', marginRight: '0.5rem' }}
-        />
-        <button type="submit" disabled={loading || !prompt.trim()} style={{ padding: '0.6rem 1.2rem', fontSize: '1rem' }}>
-          {loading ? 'Generating with Gemini...' : 'Generate Course'}
-        </button>
-      </form>
-      { }
-      {loading && <p style={{ color: 'blue' }}>⏳ Please wait... Gemini is structuring modules and lessons...</p>}
-      {error && <p style={{ color: 'red' }}> {error}</p>}
-      { }
-      <h2>Generated Courses ({courses.length})</h2>
-      {courses.length === 0 ? (
-        <p>No courses yet. Type a topic above to generate one!</p>
-      ) : (
-        <ul>
-          {courses.map((course) => (
-            <li key={course._id} style={{ marginBottom: '1.5rem' }}>
-              <strong>{course.title}</strong>
-              <p style={{ color: '#555', margin: '0.3rem 0' }}>{course.description}</p>
-              <small>Modules: {course.modules?.length || 0}</small>
-              <ul>
-                {course.modules?.map((mod, idx) => (
-                  <li key={mod._id || idx}>
-                    {mod.title} ({mod.lessons?.length || 0} lessons)
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
+      <Navbar />
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        <PromptForm onCourseCreated={handleCourseCreated} />
+        <section id="courses" className="space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-indigo-400" />
+              <h2 className="text-xl font-bold text-slate-100">All Generated Courses</h2>
+            </div>
+            <span className="text-xs font-medium text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+              {courses.length} {courses.length === 1 ? 'Course' : 'Courses'}
+            </span>
+          </div>
+          {courses.length === 0 ? (
+            <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40">
+              <p className="text-slate-400 text-sm">No courses found yet.</p>
+              <p className="text-xs text-slate-500 mt-1">Use the prompt bar above to generate your first AI course!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => (
+                <CourseCard
+                  key={course._id}
+                  course={course}
+                  onSelectCourse={(c) => setSelectedCourse(c)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }
