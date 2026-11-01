@@ -122,8 +122,9 @@ export default function CourseDetail() {
                             </div>
                             <div className="divide-y divide-slate-800/50">
                                 {module.lessons?.map((lesson, lIdx) => (
-                                    <div
+                                    <Link
                                         key={lesson._id || lIdx}
+                                        to={`/courses/${course._id}/lessons/${lesson._id}`}
                                         className="px-6 py-3.5 flex items-center justify-between hover:bg-slate-800/30 transition-colors group cursor-pointer"
                                     >
                                         <div className="flex items-center gap-3">
@@ -148,7 +149,7 @@ export default function CourseDetail() {
                                             )}
                                             <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-300 group-hover:translate-x-0.5 transition-all" />
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         </div>

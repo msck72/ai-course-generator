@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/common/Navbar';
 import Home from './pages/Home';
 import CourseDetail from './pages/CourseDetail';
+import LessonView from './pages/LessonView';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/courses" element={<Home />} />
             <Route path="/courses/:courseId" element={<CourseDetail />} />
+            <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonView />} />
           </Routes>
         </main>
       </div>
