@@ -12,6 +12,8 @@ const getGeminiClient = () => {
 
 const CANDIDATE_MODELS = [
     process.env.GEMINI_MODEL,
+    'gemini-3.5-flash-lite',
+    'gemini-3.1-flash-lite',
     'gemini-flash-latest',
     'gemini-pro-latest',
 ].filter(Boolean);
