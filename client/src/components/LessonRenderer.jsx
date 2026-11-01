@@ -3,6 +3,7 @@ import HeadingBlock from './blocks/HeadingBlock';
 import ParagraphBlock from './blocks/ParagraphBlock';
 import CodeBlock from './blocks/CodeBlock';
 import MCQBlock from './blocks/MCQBlock';
+import VideoBlock from './blocks/VideoBlock'
 
 export default function LessonRenderer({ content }) {
     if (!Array.isArray(content) || content.length == 0) {
@@ -25,6 +26,8 @@ export default function LessonRenderer({ content }) {
                         return <CodeBlock key={idx} block={block} />;
                     case 'mcq':
                         return <MCQBlock key={idx} block={block} />;
+                    case 'video':
+                        return <VideoBlock key={idx} block={block} />;
                     default:
                         return null;
                 }

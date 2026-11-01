@@ -34,5 +34,10 @@ export const getLessonById = async (lessonId) => {
     return response.data;
 }
 
+export const searchYoutube = async (query) => {
+    const response = await api.get(`/media/youtube?q=${encodeURIComponent(query)}`);
+    return response.data;
+}
+
 export default api;
 
