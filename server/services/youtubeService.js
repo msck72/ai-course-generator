@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const videoCache = new Map();
 
-const searchYoutubeVideo = async (query) => {
+const searchYouTubeVideo = async (query) => {
     if (!query || typeof query !== 'string') return null;
 
     const cleanQuery = query.trim();
@@ -66,4 +66,4 @@ const searchYoutubeVideo = async (query) => {
     }
 };
 
-module.exports = { searchYoutubeVideo };
+module.exports = { searchYouTubeVideo };
