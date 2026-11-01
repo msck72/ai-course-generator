@@ -3,7 +3,7 @@ import { HelpCircle, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 
 export default function MCQBlock({ block }) {
     const [selectedIdx, setSelectedIdx] = useState(null);
-    const [isAnswered, setIsAnswered] = useuState(false);
+    const [isAnswered, setIsAnswered] = useState(false);
 
     const handleSelect = (idx) => {
         if (isAnswered) {
@@ -70,8 +70,8 @@ export default function MCQBlock({ block }) {
             {isAnswered && (
                 <div
                     className={`mt-5 p-4 rounded-xl border text-xs sm:text-sm animate-fadeIn ${isCorrect
-                            ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300'
-                            : 'bg-amber-950/30 border-amber-800/50 text-amber-300'
+                        ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300'
+                        : 'bg-amber-950/30 border-amber-800/50 text-amber-300'
                         }`}
                 >
                     <p className="font-bold mb-1">
