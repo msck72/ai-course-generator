@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Copy, Check, Terminal } from 'lucide-react';
 
 export default function CodeBlock({ block }) {
     const [copied, setCopied] = useState(false);

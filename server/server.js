@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const courseRoutes = require('./routes/courseRoutes');
+const mediaRoutes = require('./routes/mediaRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -27,6 +28,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/courses', courseRoutes);
+app.use('/api/media', mediaRoutes);
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
