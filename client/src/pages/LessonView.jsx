@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getLessonById, enrichLesson } from '../services/api';
 import LessonRenderer from '../components/LessonRenderer';
 import { ArrowLeft, Sparkles, Target, CheckCircle2, Loader2 } from 'lucide-react';
+import HinglishAudioPlayer from '../components/HinglishAudioPlayer';
 
 export default function LessonView() {
     const { courseId, lessonId } = useParams();
@@ -139,6 +140,11 @@ export default function LessonView() {
                 </div>
             ) : (
                 <div className="space-y-6">
+                    <HinglishAudioPlayer
+                        lessonId={lesson._id || lessonId}
+                        title={lesson.title}
+                        content={lesson.content}
+                    />
                     <LessonRenderer content={lesson.content} />
                 </div>
             )}
