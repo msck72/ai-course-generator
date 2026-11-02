@@ -39,5 +39,10 @@ export const searchYoutube = async (query) => {
     return response.data;
 }
 
+export const getHinglishNarration = async (payload) => {
+    const response = await api.post('/media/hinglish', payload);
+    return response.data;
+}
+
 export default api;
 

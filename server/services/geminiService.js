@@ -1,5 +1,5 @@
 const { GoogleGenAI } = require('@google/genai');
-const { courseOutlinePrompt, lessonEnrichPrompt } = require('../utils/promptTemplates');
+const { courseOutlinePrompt, lessonEnrichPrompt, hinglishConversionPrompt } = require('../utils/promptTemplates');
 const { sanitizeAndParseJSON } = require('../utils/jsonSanitizer');
 
 const getGeminiClient = () => {
@@ -74,7 +74,19 @@ const generateLessonContent = async (courseTitle, moduleTitle, lessonTitle) => {
     return sanitizeAndParseJSON(response.text);
 };
 
+const generateHinglishNarration = async (lessonTitle, lessonSummary) => {
+    const ai = getGeminiClient();
+    const prompt = hinglishConversionPrompt(lessonTitle, lessonSummary);
+
+    const response = await generateWithFallback(ai, prompt, {
+        temperature: 0.7,
+    });
+
+    return response.text ? response.text.trim() : '';
+}
+
 module.exports = {
     generateCourseOutline,
     generateLessonContent,
+    generateHinglishNarration
 };

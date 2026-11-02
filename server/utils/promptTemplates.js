@@ -108,7 +108,19 @@ Important Rules:
 2. Choose an appropriate code language (python, javascript, sql, bash, etc.) based on the lesson topic.
 `;
 
+
+const hinglishConversionPrompt = (lessonTitle, lessonSummary) => `You are an engaging, friendly computer science educator (like top YouTube mentors).
+Explain the lesson titled "${lessonTitle}" in conversational, engaging Hinglish (Hindi written in the English/Latin alphabet, naturally mixed with English technical terms, e.g. "Aaj hum samjhenge...").
+Context/Lesson Details:
+${lessonSummary}
+Guidelines:
+1. Explain the core intuition simply, why it matters, and a quick everyday analogy.
+2. Tone: Conversational, warm, and natural for spoken audio.
+3. Length: 150-220 words (around 1.5 minutes of spoken audio).
+4. Strictly return plain text only. Do NOT use markdown symbols, bullet points, asterisks, bolding, or quotes so it speaks smoothly with text-to-speech.`;
+
 module.exports = {
     courseOutlinePrompt,
     lessonEnrichPrompt,
+    hinglishConversionPrompt
 };
