@@ -23,6 +23,8 @@ const generateCourse = async (req, res) => {
             description: outline.description || 'AI-generated course curriculum.',
             tags: outline.tags || [],
             creator: req.user?.sub || 'guest_user',
+            creatorName: req.user?.name || (req.user?.email ? req.user.email.split('@')[0] : 'Learner'),
+            creatorEmail: req.user?.email || '',
             modules: [],
         });
         await course.save();
@@ -80,17 +82,35 @@ const generateCourse = async (req, res) => {
  */
 const getCourses = async (req, res) => {
     try {
-        const courses = await Course.find()
+        const { filter } = req.query;
+        let query = {};
+
+        if (filter === 'mine') {
+            if (req.user?.sub) {
+                query = { creator: req.user.sub };
+            }
+            else {
+                query = { creator: 'guest_user' };
+            }
+        }
+
+        const courses = await Course.find(query)
             .populate({
                 path: 'modules',
                 populate: { path: 'lessons' },
             })
             .sort({ createdAt: -1 });
 
+        const coursesWithOwnership = courses.map((c) => {
+            const obj = c.toObject();
+            obj.isOwner = Boolean(req.user?.sub && c.creator === req.user.sub);
+            return obj;
+        });
+
         res.status(200).json({
             success: true,
-            count: courses.length,
-            data: courses,
+            count: coursesWithOwnership.length,
+            data: coursesWithOwnership,
         });
     } catch (error) {
         console.error('Get Courses Error:', error);
@@ -113,7 +133,10 @@ const getCourseById = async (req, res) => {
             return res.status(404).json({ success: false, error: 'Course not found' });
         }
 
-        res.status(200).json({ success: true, data: course });
+        const courseData = course.toObject();
+        courseData.isOwner = Boolean(req.user?.sub && course.creator === req.user.sub);
+
+        res.status(200).json({ success: true, data: courseData });
     } catch (error) {
         console.error('Get Course Error:', error);
         res.status(500).json({ success: false, error: error.message });
@@ -180,10 +203,53 @@ const getLessonById = async (req, res) => {
     }
 };
 
+
+const deleteCourse = async (req, res) => {
+    try {
+        const course = await Course.findById(req.params.id);
+
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                error: 'Course not found'
+            });
+        }
+
+        if (course.creator && course.creator !== 'guest_user') {
+            if (!req.user || req.user.sub != course.creator) {
+                return res.status(403).json({
+                    success: false,
+                    error: 'Permission denied: you can only delete courses you created.'
+                });
+            }
+        }
+
+        const modules = await Module.find({ course: course._id });
+
+        for (const mod of modules) {
+            if (mod.lessons && mod.lessons.length > 0) {
+                await Lesson.deleteMany({ _id: { $in: mod.lessons } });
+            }
+        }
+
+        await Module.deleteMany({ course: course._id });
+        await Course.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Course and all associated lessons deleted successfully.',
+        });
+    } catch (err) {
+        console.error('Delete Course Error: ', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+}
+
 module.exports = {
     generateCourse,
     getCourses,
     getCourseById,
+    deleteCourse,
     enrichLesson,
     getLessonById,
 };

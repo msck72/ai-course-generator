@@ -16,6 +16,14 @@ const courseSchema = new mongoose.Schema(
             type: String,
             default: 'guest_user',
         },
+        creatorName: {
+            type: String,
+            default: 'Anonymous',
+        },
+        creatorEmail: {
+            type: String,
+            default: '',
+        },
         tags: [
             {
                 type: String,

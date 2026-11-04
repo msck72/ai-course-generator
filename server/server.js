@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const courseRoutes = require('./routes/courseRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
+const { identifyUser } = require('./middlewares/authMiddleware');
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +19,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(identifyUser);
 
 app.get('/api/health', (req, res) => {
     res.status(200).json({
