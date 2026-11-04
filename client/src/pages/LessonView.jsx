@@ -4,6 +4,7 @@ import { getLessonById, enrichLesson } from '../services/api';
 import LessonRenderer from '../components/LessonRenderer';
 import { ArrowLeft, Sparkles, Target, CheckCircle2, Loader2 } from 'lucide-react';
 import HinglishAudioPlayer from '../components/HinglishAudioPlayer';
+import PDFExportButton from '../components/PDFExportButton';
 
 export default function LessonView() {
     const { courseId, lessonId } = useParams();
@@ -73,13 +74,17 @@ export default function LessonView() {
     }
     return (
         <div className="max-w-3xl mx-auto space-y-8">
-            <div>
+            <div className="flex items-center justify-between">
                 <Link
                     to={`/courses/${courseId}`}
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to Course Syllabus
                 </Link>
+
+                {lesson?.isEnriched && (
+                    <PDFExportButton targetId="lesson-pdf-content" lessonTitle={lesson.title} />
+                )}
             </div>
             <div className="space-y-4 pb-6 border-b border-slate-800">
                 <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
@@ -139,7 +144,7 @@ export default function LessonView() {
                     </button>
                 </div>
             ) : (
-                <div className="space-y-6">
+                <div id="lesson-pdf-content" className="space-y-6">
                     <HinglishAudioPlayer
                         lessonId={lesson._id || lessonId}
                         title={lesson.title}
