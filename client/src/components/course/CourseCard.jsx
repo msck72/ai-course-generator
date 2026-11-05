@@ -1,8 +1,8 @@
 import React from 'react';
-import { BookOpen, Layers, ArrowRight, Tag } from 'lucide-react';
+import { BookOpen, Layers, ArrowRight, Tag, Trash2, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function CourseCard({ course, onSelectCourse }) {
+export default function CourseCard({ course, onDelete }) {
     const moduleCount = course.modules?.length || 0;
     const lessonCount = course.modules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0;
 
@@ -19,6 +19,18 @@ export default function CourseCard({ course, onSelectCourse }) {
                         {lessonCount} {lessonCount === 1 ? 'Lesson' : 'Lessons'}
                     </span>
                 </div>
+
+                {course.isOwner ? (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        My Course
+                    </span>
+                ) : course.creatorName && course.creatorName != 'Anonymous' ? (
+                    <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <User className="w-3 h-3 text-slate-500" />
+                        {course.creatorName}
+                    </span>
+                ) : null}
+
                 <h3 className="text-lg font-bold text-slate-100 group-hover:text-indigo-300 transition-colors line-clamp-1">
                     {course.title}
                 </h3>
@@ -46,6 +58,21 @@ export default function CourseCard({ course, onSelectCourse }) {
                         day: 'numeric',
                     })}
                 </span>
+
+                {course.isOwner && onDelete && (
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onDelete(course._id, course.title);
+                        }}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-950/40 transition-colors cursor-pointer"
+                        title="Delete this course"
+                    >
+                        <Trash2 className='w-3.5 h-3.5' />
+                    </button>
+                )}
+
                 <Link
                     to={`/courses/${course._id}`}
                     className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-400 group-hover:text-indigo-300 group-hover:translate-x-0.5 transition-all"

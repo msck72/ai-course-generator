@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getCourseById } from '../services/api';
-import { ArrowLeft, BookOpen, Layers, CheckCircle2, Circle, ChevronRight, Tag, Loader2 } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { getCourseById, deleteCourse } from '../services/api';
+import { ArrowLeft, BookOpen, Layers, CheckCircle2, Circle, ChevronRight, Tag, Loader2, Trash2, User } from 'lucide-react';
 
 export default function CourseDetail() {
     const { courseId } = useParams();
+    const navigate = useNavigate();
     const [course, setCourse] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -53,18 +55,63 @@ export default function CourseDetail() {
     const enrichedLessons = course.modules?.reduce(
         (acc, m) => acc + (m.lessons?.filter((l) => l.isEnriched)?.length || 0), 0
     );
+
+    const handleDeleteCourse = async () => {
+        const confirmed = window.confirm(
+            `Are you sure you want to delete "${course.title}"\n\nThis will permanently delete all its modules and lessons.`
+        );
+        if (!confirmed) return;
+
+        try {
+            setIsDeleting(true);
+            await deleteCourse(courseId);
+            navigate('/');
+        } catch (err) {
+            console.error('Error deleting course: ', err);
+            alert(err.response?.data?.error || 'Failed to delete course');
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <div className="max-w-4xl mx-auto space-y-8">
-            <div>
+            <div className="flex items-center justify-between">
                 <Link
                     to="/"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to all courses
                 </Link>
+
+                {course.isOwner && (
+                    <button
+                        onClick={handleDeleteCourse}
+                        disabled={isDeleting}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/50 border border-red-800/50 text-red-300 hover:text-red-200 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                    >
+                        {isDeleting ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>{isDeleting ? 'Deleting...' : 'Delete Course'}</span>
+                    </button>
+                )}
             </div>
+
             <div className="p-8 rounded-3xl bg-gradient-to-b from-slate-900 to-slate-900/60 border border-slate-800 space-y-4 shadow-xl">
                 <div className="flex flex-wrap items-center gap-2">
+                    {course.isOwner ? (
+                        <span className='inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'>
+                            Created by you
+                        </span>
+                    ) : course.creatorName && course.creatorName !== 'Anonymous' ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">
+                            <User className="w-3 h-3 text-slate-400" />
+                            Created by {course.creatorName}
+                        </span>
+                    ) : null}
+
                     {course.tags?.map((tag, idx) => (
                         <span
                             key={idx}
