@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getLessonById, enrichLesson } from '../services/api';
+import { getLessonById, getCourseById, enrichLesson } from '../services/api';
 import LessonRenderer from '../components/LessonRenderer';
-import { ArrowLeft, Sparkles, Target, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Target, CheckCircle2, Loader2, ChevronLeft, ChevronRight, Layers, Menu } from 'lucide-react';
 import HinglishAudioPlayer from '../components/HinglishAudioPlayer';
 import PDFExportButton from '../components/PDFExportButton';
+import CurriculamSidebar from '../components/course/CurriculamSidebar';
 
 export default function LessonView() {
     const { courseId, lessonId } = useParams();
     const [lesson, setLesson] = useState(null);
+    const [course, setCourse] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isEnriching, setIsEnriching] = useState(false);
     const [error, setError] = useState('');
 
-    const fetchLesson = async () => {
+    const fetchLessonAndCourse = async () => {
         try {
             setIsLoading(true);
-            const res = await getLessonById(lessonId);
-            setLesson(res.data);
+            setError('');
+
+            const [lessonRes, courseRes] = await Promise.all([
+                getLessonById(lessonId),
+                getCourseById(courseId),
+            ]);
+            setLesson(lessonRes.data);
+            setCourse(courseRes.data);
         } catch (err) {
             console.error('Error fetching lesson: ', err);
             setError('Failed to load lesson details');
@@ -27,10 +36,11 @@ export default function LessonView() {
     };
 
     useEffect(() => {
-        if (lessonId) {
-            fetchLesson();
+        if (courseId && lessonId) {
+            fetchLessonAndCourse();
+            window.scrollTo({ top: 0, behaviour: 'smooth' });
         }
-    }, [lessonId]);
+    }, [courseId, lessonId]);
 
     const handleEnrich = async () => {
         try {
@@ -38,6 +48,9 @@ export default function LessonView() {
             setError('');
             const res = await enrichLesson(lessonId);
             setLesson(res.data);
+
+            const courseRes = await getCourseById(courseId);
+            setCourse(courseRes.data);
         } catch (err) {
             console.error('Error enriching lesson:', err);
             const errMsg = err.response?.data?.error || err.message;
@@ -50,6 +63,11 @@ export default function LessonView() {
             setIsEnriching(false);
         }
     };
+
+    const allLessons = course?.modules?.flatMap((m) => m.lessons) || [];
+    const currentIndex = allLessons.findIndex((l) => (l._id || l) === lessonId);
+    const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
+    const nextLesson = currentIndex >= 0 && currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
     if (isLoading) {
         return (
@@ -73,93 +91,140 @@ export default function LessonView() {
         );
     }
     return (
-        <div className="max-w-3xl mx-auto space-y-8">
-            <div className="flex items-center justify-between">
-                <Link
-                    to={`/courses/${courseId}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4" /> Back to Course Syllabus
-                </Link>
+        <div className="flex gap-8 items-start relative">
+            <CurriculamSidebar
+                course={course}
+                currentLessonId={lessonId}
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+            />
 
-                {lesson?.isEnriched && (
-                    <PDFExportButton targetId="lesson-pdf-content" lessonTitle={lesson.title} />
-                )}
-            </div>
-            <div className="space-y-4 pb-6 border-b border-slate-800">
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
-                    {lesson.title}
-                </h1>
-                {lesson.objectives && lesson.objectives.length > 0 && (
-                    <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                        <span className="text-xs font-semibold text-indigo-400 flex items-center gap-1.5 uppercase tracking-wider">
-                            <Target className="w-3.5 h-3.5" /> Learning Objectives
-                        </span>
-                        <ul className="space-y-1.5 text-xs sm:text-sm text-slate-300">
-                            {lesson.objectives.map((obj, idx) => (
-                                <li key={idx} className="flex items-start gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                                    <span>{obj}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-            </div>
-            {!lesson.isEnriched ? (
-                <div className="text-center py-12 px-6 rounded-3xl bg-slate-900/60 border border-dashed border-slate-800 space-y-4">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
-                        <Sparkles className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-100">Ready to Generate Content</h3>
-                        <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
-                            This lesson outline is ready. Click below to have Gemini generate comprehensive explanations, syntax-highlighted code, and interactive quizzes!
-                        </p>
+            <div className="flex-1 min-w-0 max-w-3xl mx-auto space-y-8">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                        >
+                            <Menu className="w-4 h-4 text-indigo-400" />
+                            <span>Curriculum</span>
+                        </button>
+
+                        <Link
+                            to={`/courses/${courseId}`}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4" /> Back to Course Syllabus
+                        </Link>
                     </div>
 
-                    {error && (
-                        <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs sm:text-sm max-w-md mx-auto text-left">
-                            <p className="font-semibold mb-0.5">⚠️ Generation Failed</p>
-                            <p className="text-red-400 text-xs">{error}</p>
+                    {lesson?.isEnriched && (
+                        <PDFExportButton targetId="lesson-pdf-content" lessonTitle={lesson.title} />
+                    )}
+                </div>
+
+                <div className="space-y-4 pb-6 border-b border-slate-800">
+                    <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
+                        {lesson.title}
+                    </h1>
+                    {lesson.objectives && lesson.objectives.length > 0 && (
+                        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                            <span className="text-xs font-semibold text-indigo-400 flex items-center gap-1.5 uppercase tracking-wider">
+                                <Target className="w-3.5 h-3.5" /> Learning Objectives
+                            </span>
+                            <ul className="space-y-1.5 text-xs sm:text-sm text-slate-300">
+                                {lesson.objectives.map((obj, idx) => (
+                                    <li key={idx} className="flex items-start gap-2">
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                        <span>{obj}</span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     )}
+                </div>
+                {!lesson.isEnriched ? (
+                    <div className="text-center py-12 px-6 rounded-3xl bg-slate-900/60 border border-dashed border-slate-800 space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
+                            <Sparkles className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-100">Ready to Generate Content</h3>
+                            <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+                                This lesson outline is ready. Click below to have Gemini generate comprehensive explanations, syntax-highlighted code, and interactive quizzes!
+                            </p>
+                        </div>
 
-                    <button
-                        onClick={handleEnrich}
-                        disabled={isEnriching}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                        {isEnriching ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Generating Lesson Content...</span>
-                            </>
-                        ) : (
-                            <>
-                                <Sparkles className="w-4 h-4" />
-                                <span>Generate Rich Lesson Content</span>
-                            </>
+                        {error && (
+                            <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs sm:text-sm max-w-md mx-auto text-left">
+                                <p className="font-semibold mb-0.5"> Generation Failed</p>
+                                <p className="text-red-400 text-xs">{error}</p>
+                            </div>
                         )}
-                    </button>
+
+                        <button
+                            onClick={handleEnrich}
+                            disabled={isEnriching}
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                            {isEnriching ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>Generating Lesson Content...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="w-4 h-4" />
+                                    <span>Generate Rich Lesson Content</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
+                ) : (
+                    <div id="lesson-pdf-content" className="space-y-6">
+                        <HinglishAudioPlayer
+                            lessonId={lesson._id || lessonId}
+                            title={lesson.title}
+                            content={lesson.content}
+                        />
+                        <LessonRenderer content={lesson.content} />
+                    </div>
+                )}
+                <div className="pt-8 border-t border-slate-800 flex justify-between items-center flex-col sm:flex-row items-center justify-between gap-4">
+
+                    {prevLesson ? (
+                        <Link
+                            to={`/courses/${courseId}/lessons/${prevLesson._id}`}
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition-all group"
+                        >
+                            <ChevronLeft className="w-4 h-4 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
+                            <span className="truncate max-w-[200px]">Previous: {prevLesson.title}</span>
+                        </Link>
+                    ) : (
+                        <div className="hidden sm:block" />
+                    )}
+
+                    <Link
+                        to={`/courses/${courseId}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 transition-colors order-last sm:order-none"
+                    >
+                        <Layers className="w-3.5 h-3.5" /> Return to Syllabus
+                    </Link>
+
+                    {nextLesson ? (
+                        <Link
+                            to={`/courses/${courseId}/lessons/${nextLesson._id}`}
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all group"
+                        >
+                            <span className="truncate max-w-[200px]">Next: {nextLesson.title}</span>
+                            <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
+                        </Link>
+                    ) : (
+                        <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1">
+                            Course Completed!
+                        </span>
+                    )}
                 </div>
-            ) : (
-                <div id="lesson-pdf-content" className="space-y-6">
-                    <HinglishAudioPlayer
-                        lessonId={lesson._id || lessonId}
-                        title={lesson.title}
-                        content={lesson.content}
-                    />
-                    <LessonRenderer content={lesson.content} />
-                </div>
-            )}
-            <div className="pt-8 border-t border-slate-800 flex justify-between items-center">
-                <Link
-                    to={`/courses/${courseId}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4" /> Return to Syllabus
-                </Link>
             </div>
         </div>
     );
