@@ -1,5 +1,6 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
+import { setAuthUser } from '../../services/api';
 
 const AuthContext = createContext({
     isAuthenticated: false,
@@ -12,6 +13,15 @@ const AuthContext = createContext({
 
 const Auth0Bridge = ({ children }) => {
     const auth0 = useAuth0();
+
+    useEffect(() => {
+        if (auth0.user) {
+            setAuthUser(auth0.user);
+        } else {
+            setAuthUser(null);
+        }
+    }, [auth0.user]);
+
     return (
         <AuthContext.Provider value={{ ...auth0, isConfigured: true }}>
             {children}
