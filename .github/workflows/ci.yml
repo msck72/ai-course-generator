@@ -1,0 +1,64 @@
+name: CI Workflow
+
+on:
+  push:
+    branches: [dev, main, master]
+  pull_request:
+    branches: [dev, main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  client-build:
+    name: Clinet Build (Vite & Tailwind)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install client dependencies
+        run: npm ci 
+      
+      - name: Run Vite production build
+        env:
+          VITE_API_URL: http://localhost:5001/api 
+          VITE_AUTH0_DOMAIN: dummy.auth0.com
+          VITE_AUTH0_CLIENT_ID: dummy_client_id
+        run: npm run build
+
+  server-check:
+    name: Server Syntax & Smoke Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        run: npm ci
+      
+      - name: Run server syntax verification
+        run: npm test
