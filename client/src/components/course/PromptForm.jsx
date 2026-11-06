@@ -52,10 +52,7 @@ export default function PromptForm({ onCourseCreated }) {
                 AI-Powered Curriculum Generation
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-100">
-                Turn Any Topic into a{' '}
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
-                    Comprehensive Course
-                </span>
+                Turn Any Topic into a <span className="text-indigo-400">Structured Course</span>
             </h1>
             <p className="mt-3 text-sm sm:text-base text-slate-400 max-w-xl mx-auto">
                 Type whatever you want to master. Gemini structures modules, lessons, code examples, and interactive quizzes in seconds.
@@ -73,7 +70,7 @@ export default function PromptForm({ onCourseCreated }) {
                     <button
                         type="submit"
                         disabled={isLoading || !prompt.trim()}
-                        className="absolute right-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-md shadow-indigo-600/30 flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                        className="absolute right-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm shadow-sm flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                         {isLoading ? (
                             <>
