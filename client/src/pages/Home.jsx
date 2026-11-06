@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import PromptForm from '../components/course/PromptForm';
 import CourseCard from '../components/course/CourseCard';
 import { createCourse, getCourses, deleteCourse } from '../services/api';
@@ -30,6 +30,20 @@ export default function Home() {
         }
     };
 
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.hash === '#courses') {
+            setActiveTab('mine');
+            const el = document.getElementById('courses');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else if (location.hash === '#generate') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [location]);
+
     useEffect(() => {
         fetchCourses(activeTab);
     }, [activeTab, user]);
@@ -59,7 +73,7 @@ export default function Home() {
     };
 
     return (
-        <div className="space-y-12">
+        <div id="generate" className="space-y-12">
             <PromptForm onCourseCreated={handleCourseCreated} />
             <section id="courses" className="space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -68,8 +82,8 @@ export default function Home() {
                         <button
                             onClick={() => setActiveTab('mine')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'mine'
-                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                                 }`}
                         >
                             <User className="w-4 h-4" />
@@ -78,8 +92,8 @@ export default function Home() {
                         <button
                             onClick={() => setActiveTab('all')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === 'all'
-                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                                 }`}
                         >
                             <Globe className="w-4 h-4" />

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Layers, CheckCircle2, Circle, X } from 'lucide-react';
+import { Layers, CheckCircle2, Circle, PanelLeftClose } from 'lucide-react';
 
-export default function CurriculumSidebar({ course, currentLessonId, isOpen, onClose }) {
+export default function CurriculumSidebar({ course, currentLessonId, isOpen, onToggle, onClose }) {
     if (!course) return null;
 
     return (
@@ -15,8 +15,15 @@ export default function CurriculumSidebar({ course, currentLessonId, isOpen, onC
             )}
 
             <aside
-                className={`fixed lg:static top-0 left-0 h-full lg:h-auto z-40 w-72 sm:w-80 bg-slate-900/95 lg:bg-slate-900/60 border-r border-slate-800 p-5 flex flex-col justify-between shrink-0 transform transition-transform duration-300 ease-in-out lg:transform-none lg:rounded-3xl lg:border ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-                    }`}
+                className={`fixed lg:sticky lg:top-24 top-0 left-0 h-full lg:h-[calc(100vh-8rem)] z-40
+                    bg-slate-900/95 lg:bg-slate-900/80 backdrop-blur-md border-r lg:border border-slate-800 lg:rounded-3xl
+                    flex flex-col justify-between shrink-0 overflow-hidden shadow-xl
+                    transition-all duration-300 ease-in-out
+                    ${isOpen
+                        ? 'w-72 sm:w-80 p-5 opacity-100 translate-x-0'
+                        : 'w-0 -translate-x-full lg:translate-x-0 lg:w-0 p-0 border-none opacity-0 pointer-events-none'
+                    }
+                `}
             >
                 <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-6rem)] pr-1">
                     <div className="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -28,9 +35,11 @@ export default function CurriculumSidebar({ course, currentLessonId, isOpen, onC
                         </div>
 
                         <button
-                            onClick={onClose}
-                            className="lg:hidden p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800">
-                            <X className="w-4 h-4" />
+                            onClick={onToggle}
+                            className="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 transition-colors cursor-pointer shrink-0"
+                            title="Collapse Syllabus sidebar"
+                        >
+                            <PanelLeftClose className="w-4 h-4" />
                         </button>
                     </div>
 

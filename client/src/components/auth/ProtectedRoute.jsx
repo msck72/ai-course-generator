@@ -30,7 +30,7 @@ export default function ProtectedRoute({ children }) {
                 </div>
                 <button
                     onClick={() => loginWithRedirect()}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm transition-colors cursor-pointer"
                 >
                     <Sparkles className="w-4 h-4" />
                     <span>Log In / Sign Up</span>

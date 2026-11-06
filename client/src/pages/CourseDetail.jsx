@@ -99,7 +99,7 @@ export default function CourseDetail() {
                 )}
             </div>
 
-            <div className="p-8 rounded-3xl bg-gradient-to-b from-slate-900 to-slate-900/60 border border-slate-800 space-y-4 shadow-xl">
+            <div className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 space-y-4 shadow-sm">
                 <div className="flex flex-wrap items-center gap-2">
                     {course.isOwner ? (
                         <span className='inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'>

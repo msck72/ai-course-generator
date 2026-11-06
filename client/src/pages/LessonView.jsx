@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getLessonById, getCourseById, enrichLesson } from '../services/api';
 import LessonRenderer from '../components/LessonRenderer';
-import { ArrowLeft, Sparkles, Target, CheckCircle2, Loader2, ChevronLeft, ChevronRight, Layers, Menu } from 'lucide-react';
+import { ArrowLeft, Sparkles, Target, CheckCircle2, Loader2, ChevronLeft, ChevronRight, Layers, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import HinglishAudioPlayer from '../components/HinglishAudioPlayer';
 import PDFExportButton from '../components/PDFExportButton';
 import CurriculamSidebar from '../components/course/CurriculamSidebar';
@@ -11,7 +11,7 @@ export default function LessonView() {
     const { courseId, lessonId } = useParams();
     const [lesson, setLesson] = useState(null);
     const [course, setCourse] = useState(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
     const [isEnriching, setIsEnriching] = useState(false);
     const [error, setError] = useState('');
@@ -96,6 +96,7 @@ export default function LessonView() {
                 course={course}
                 currentLessonId={lessonId}
                 isOpen={isSidebarOpen}
+                onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 onClose={() => setIsSidebarOpen(false)}
             />
 
@@ -103,11 +104,18 @@ export default function LessonView() {
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm"
+                            title={isSidebarOpen ? 'Collabse syllabus' : 'Expand Syllabus'}
                         >
-                            <Menu className="w-4 h-4 text-indigo-400" />
-                            <span>Curriculum</span>
+                            {isSidebarOpen ? (
+                                <PanelLeftClose className="w-4 h-4 text-indigo-400" />
+                            ) : (
+                                <PanelLeftOpen className="w-4 h-4 text-indigo-400" />
+                            )}
+                            <span className="hidden sm:inline">
+                                {isSidebarOpen ? 'Hide Syllabus' : 'Show Syllabus'}
+                            </span>
                         </button>
 
                         <Link
@@ -165,7 +173,7 @@ export default function LessonView() {
                         <button
                             onClick={handleEnrich}
                             disabled={isEnriching}
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm transition-colors cursor-pointer disabled:opacity-50"
                         >
                             {isEnriching ? (
                                 <>
@@ -214,7 +222,7 @@ export default function LessonView() {
                     {nextLesson ? (
                         <Link
                             to={`/courses/${courseId}/lessons/${nextLesson._id}`}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all group"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-sm transition-colors group"
                         >
                             <span className="truncate max-w-[200px]">Next: {nextLesson.title}</span>
                             <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
