@@ -16,25 +16,26 @@ export default function ProtectedRoute({ children }) {
 
     if (isConfigured && !isAuthenticated) {
         return (
-            <div className="max-w-md mx-auto my-16 p-8 rounded-3xl bg-slate-900/80 border border-slate-800 text-center space-y-6 shadow-2xl">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
-                    <Lock className="w-7 h-7" />
+            <div className="min-h-[65vh] flex items-center justify-center px-4">
+                <div className="w-full max-w-md p-8 sm-p-10 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-6 shadow-xl">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
+                        <Lock className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="text-2xl sm:text-3xl font-medium tracking-[-0.035em] text-slate-100 leading-tight">
+                            Sign in to Text-to-Learn
+                        </h3>
+                        <p className="text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+                            Turn any topic into structured courses with interactive quizzes, YouTube tutorials, and audio narration.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => loginWithRedirect()}
+                        className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm transition-colors cursor-pointer shadow-sm"
+                    >
+                        <span>Continue to Log In / Sign Up</span>
+                    </button>
                 </div>
-                <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-slate-100">
-                        Sign In Required
-                    </h3>
-                    <p className="text-sm text-slate-400 leading-relaxed">
-                        Please sign in to generate AI courses, access the syllabus, and start interactive learning.
-                    </p>
-                </div>
-                <button
-                    onClick={() => loginWithRedirect()}
-                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm transition-colors cursor-pointer"
-                >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Log In / Sign Up</span>
-                </button>
             </div>
         );
     }
