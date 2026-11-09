@@ -69,6 +69,10 @@ export default function LessonView() {
     const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
     const nextLesson = currentIndex >= 0 && currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
+    const currentModule = course?.modules?.find((m) =>
+        m.lessons?.some((l) => (l._id || l) === lessonId)
+    );
+
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center py-20">
@@ -131,70 +135,91 @@ export default function LessonView() {
                     )}
                 </div>
 
-                <div className="space-y-4 pb-6 border-b border-slate-800">
-                    <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
-                        {lesson.title}
-                    </h1>
-                    {lesson.objectives && lesson.objectives.length > 0 && (
-                        <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                            <span className="text-xs font-semibold text-indigo-400 flex items-center gap-1.5 uppercase tracking-wider">
-                                <Target className="w-3.5 h-3.5" /> Learning Objectives
-                            </span>
-                            <ul className="space-y-1.5 text-xs sm:text-sm text-slate-300">
-                                {lesson.objectives.map((obj, idx) => (
-                                    <li key={idx} className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                                        <span>{obj}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                </div>
                 {!lesson.isEnriched ? (
-                    <div className="text-center py-12 px-6 rounded-3xl bg-slate-900/60 border border-dashed border-slate-800 space-y-4">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
-                            <Sparkles className="w-6 h-6" />
+                    <>
+                        <div className="space-y-4 pb-6 border-b border-slate-800">
+                            <h1 className="text-2xl sm:text-4xl font-semibold text-slate-100 tracking-tight">
+                                {lesson.title}
+                            </h1>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-bold text-slate-100">Ready to Generate Content</h3>
-                            <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
-                                This lesson outline is ready. Click below to have Gemini generate comprehensive explanations, syntax-highlighted code, and interactive quizzes!
-                            </p>
-                        </div>
-
-                        {error && (
-                            <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs sm:text-sm max-w-md mx-auto text-left">
-                                <p className="font-semibold mb-0.5"> Generation Failed</p>
-                                <p className="text-red-400 text-xs">{error}</p>
+                        <div className="text-center py-12 px-6 rounded-3xl bg-slate-900/60 border border-dashed border-slate-800 space-y-4">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
+                                <Sparkles className="w-6 h-6" />
                             </div>
-                        )}
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-100">Ready to Generate Content</h3>
+                                <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+                                    This lesson outline is ready. Click below to have Gemini generate comprehensive explanations, syntax-highlighted code, and interactive quizzes!
+                                </p>
+                            </div>
 
-                        <button
-                            onClick={handleEnrich}
-                            disabled={isEnriching}
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm transition-colors cursor-pointer disabled:opacity-50"
-                        >
-                            {isEnriching ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    <span>Generating Lesson Content...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="w-4 h-4" />
-                                    <span>Generate Rich Lesson Content</span>
-                                </>
+                            {error && (
+                                <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs sm:text-sm max-w-md mx-auto text-left">
+                                    <p className="font-semibold mb-0.5"> Generation Failed</p>
+                                    <p className="text-red-400 text-xs">{error}</p>
+                                </div>
                             )}
-                        </button>
-                    </div>
+
+                            <button
+                                onClick={handleEnrich}
+                                disabled={isEnriching}
+                                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                            >
+                                {isEnriching ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <span>Generating Lesson Content...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-4 h-4" />
+                                        <span>Generate Rich Lesson Content</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </>
                 ) : (
                     <div id="lesson-pdf-content" className="space-y-6">
-                        <HinglishAudioPlayer
-                            lessonId={lesson._id || lessonId}
-                            title={lesson.title}
-                            content={lesson.content}
-                        />
+                        <div className="space-y-4 pb-6 border-b border-slate-800">
+                            <div className="flex flex-wrap items-center gap-2 text-xs">
+                                {course?.title && (
+                                    <span className="px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-medium">
+                                        {course.title}
+                                    </span>
+                                )}
+                                {currentModule?.title && (
+                                    <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 font-medium">
+                                        {currentModule.title}
+                                    </span>
+                                )}
+                            </div>
+                            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-100 tracking-tight">
+                                {lesson.title}
+                            </h1>
+                            {lesson.objectives && lesson.objectives.length > 0 && (
+                                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                                    <span className="text-xs font-semibold text-indigo-400 flex items-center gap-1.5 uppercase tracking-wider">
+                                        <Target className="w-3.5 h-3.5" /> Learning Objectives
+                                    </span>
+                                    <ul className="space-y-1.5 text-xs sm:text-sm text-slate-300">
+                                        {lesson.objectives.map((obj, idx) => (
+                                            <li key={idx} className="flex items-start gap-2">
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                                <span>{obj}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                        <div className="no-pdf">
+                            <HinglishAudioPlayer
+                                lessonId={lesson._id || lessonId}
+                                title={lesson.title}
+                                content={lesson.content}
+                            />
+                        </div>
                         <LessonRenderer content={lesson.content} />
                     </div>
                 )}
