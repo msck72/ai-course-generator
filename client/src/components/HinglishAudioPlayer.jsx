@@ -46,6 +46,11 @@ export default function HinglishAudioPlayer({ lessonId, title, content }) {
             return;
         }
 
+        if (utteranceRef.current) {
+            utteranceRef.current.onend = null;
+            utteranceRef.current.onerror = null;
+        }
+
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
@@ -66,15 +71,20 @@ export default function HinglishAudioPlayer({ lessonId, title, content }) {
         };
 
         utterance.onerror = (e) => {
+            if (e.error === 'canceled' || e.error === 'interrupted') {
+                return;
+            }
             console.error('Speech error: ', e);
             setIsPlaying(false);
             setIsPaused(false);
         };
 
         utteranceRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
-        setIsPlaying(true);
-        setIsPaused(false);
+        setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+            setIsPlaying(true);
+            setIsPaused(false);
+        }, 50);
     };
 
     const handlePlayPause = async () => {
@@ -115,7 +125,7 @@ export default function HinglishAudioPlayer({ lessonId, title, content }) {
 
     const handleSpeedChange = (newSpeed) => {
         setSpeed(newSpeed);
-        if (isPlaying && script) {
+        if (isPlaying && !isPaused && script) {
             speakText(script, newSpeed);
         }
     };
@@ -148,11 +158,10 @@ export default function HinglishAudioPlayer({ lessonId, title, content }) {
                             <button
                                 key={s}
                                 onClick={() => handleSpeedChange(s)}
-                                className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
-                                    speed === s
+                                className={`px-2 py-1 rounded-md transition-all cursor-pointer ${speed === s
                                         ? 'bg-indigo-600 text-white font-bold'
                                         : 'hover:text-white'
-                                }`}
+                                    }`}
                             >
                                 {s}x
                             </button>
