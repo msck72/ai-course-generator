@@ -14,6 +14,10 @@ const AuthContext = createContext({
 const Auth0Bridge = ({ children }) => {
     const auth0 = useAuth0();
 
+    if (auth0.user) {
+        setAuthUser(auth0.user);
+    }
+
     useEffect(() => {
         if (auth0.user) {
             setAuthUser(auth0.user);

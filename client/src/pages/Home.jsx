@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PromptForm from '../components/course/PromptForm';
 import CourseCard from '../components/course/CourseCard';
-import { createCourse, getCourses, deleteCourse } from '../services/api';
+import { createCourse, getCourses, deleteCourse, setAuthUser } from '../services/api';
 import { BookOpen, User, Globe, Loader2 } from 'lucide-react';
 import { useAuth } from '../components/auth/AuthProvider';
 import CourseDetail from './CourseDetail';
@@ -13,7 +13,7 @@ export default function Home() {
     const [activeTab, setActiveTab] = useState('mine');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, isLoading: authLoading } = useAuth();
 
 
     const fetchCourses = async (tab = activeTab) => {
@@ -45,8 +45,12 @@ export default function Home() {
     }, [location]);
 
     useEffect(() => {
+        if (authLoading) return;
+        if (user) {
+            setAuthUser(user);
+        }
         fetchCourses(activeTab);
-    }, [activeTab, user]);
+    }, [activeTab, user, authLoading]);
 
     const handleCourseCreated = async (prompt) => {
         const res = await createCourse(prompt);
