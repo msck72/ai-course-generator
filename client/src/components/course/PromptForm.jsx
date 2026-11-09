@@ -51,7 +51,7 @@ export default function PromptForm({ onCourseCreated }) {
                 <Sparkles className="w-3.5 h-3.5" />
                 AI-Powered Curriculum Generation
             </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-100">
+            <h1 className="text-4xl sm:text-6xl font-normal sm:font-medium tracking-[-0.04em] leading-[1.12] text-slate-100 max-w-3xl mx-auto">
                 Turn Any Topic into a <span className="text-indigo-400">Structured Course</span>
             </h1>
             <p className="mt-3 text-sm sm:text-base text-slate-400 max-w-xl mx-auto">
