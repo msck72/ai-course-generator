@@ -4,6 +4,13 @@ An automated course generation platform that converts any topic into a multi-mod
 
 ---
 
+## Demo Videos
+| Part | Content Covered | Link |
+|---|---|---|
+| **Part 1: Product Walkthrough** | Live Product Walkthrough | [Watch Video on Google Drive](https://drive.google.com/file/d/1XHtS-G3sK78g3IRUfrICnEGOFu19D0MM/view?usp=sharing) |
+| **Part 2: Architecture & Code Deep Dive** | Brief walkthrough of codebase and architecture flow | [Watch Video on Google Drive](https://drive.google.com/file/d/1ugDnaifmFLzCqU_cIo1JqtvvsBpsmncn/view?usp=sharing) |
+---
+
 ## Features
 
 - **Automated Curriculum Generation**: Generates structured modules and lessons from any topic using the Gemini API.
